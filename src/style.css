@@ -255,7 +255,7 @@ body {
 
 .column {
   flex: 1;
-  max-width: 88px;
+  max-width: 120px;
   display: flex;
   flex-direction: column-reverse;
   gap: 4px;
@@ -368,6 +368,64 @@ body {
 
 .best-row:last-child {
   border-bottom: none;
+}
+
+/* ---------- Larger screens (tablets) ---------- */
+@media (min-width: 700px) {
+  #app {
+    max-width: 680px;
+    gap: 12px;
+  }
+
+  .card-flipper {
+    width: 240px;
+    height: 200px;
+  }
+
+  .card-cell {
+    font-size: 16px;
+  }
+
+  .block {
+    font-size: 26px;
+  }
+
+  .stat-value {
+    font-size: 20px;
+  }
+}
+
+/* Tablet landscape: card and stats on the left, board on the right */
+@media (min-width: 900px) and (orientation: landscape) {
+  #app {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    grid-template-rows: auto auto 1fr;
+    column-gap: 24px;
+    max-width: 1000px;
+    align-items: start;
+  }
+
+  .topbar {
+    grid-column: 1 / -1;
+  }
+
+  .stats {
+    grid-column: 1;
+  }
+
+  .card-area {
+    grid-column: 1;
+    position: static;
+    flex-direction: column;
+  }
+
+  .board {
+    grid-column: 2;
+    grid-row: 2 / 4;
+    height: 100%;
+    align-items: center;
+  }
 }
 
 /* Celebration */

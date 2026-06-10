@@ -79,11 +79,15 @@ function blockEl(block: Block): HTMLElement {
 function renderBoard(): void {
   const { cfg, board, selected } = state;
   boardEl.innerHTML = '';
-  // Size blocks so the tallest stack fits the board height.
-  const blockH = Math.max(
-    36,
-    Math.min(56, Math.floor((boardEl.clientHeight - 20 - cfg.rows * 4) / cfg.rows))
+  // Size blocks to fill the available board area: constrained by height
+  // (R slots per column) and by width (cols + buffer side by side).
+  const numCols = cfg.cols + 1;
+  const heightBased = Math.floor((boardEl.clientHeight - 20 - cfg.rows * 4) / cfg.rows);
+  const colWidth = Math.min(
+    120,
+    Math.floor((boardEl.clientWidth - (numCols - 1) * 6) / numCols)
   );
+  const blockH = Math.max(36, Math.min(heightBased, colWidth - 16, 104));
   board.forEach((col, i) => {
     const colEl = document.createElement('div');
     const isBuffer = i === board.length - 1;
@@ -306,7 +310,11 @@ winNextBtn.addEventListener('click', nextCard);
 bestBtn.addEventListener('click', showBest);
 bestCloseBtn.addEventListener('click', () => bestOverlay.classList.add('hidden'));
 
-window.addEventListener('resize', renderBoard);
+window.addEventListener('resize', () => {
+  renderBoard();
+  // Layout can still be settling during orientation changes; render again next frame.
+  requestAnimationFrame(renderBoard);
+});
 
 // PWA service worker
 if ('serviceWorker' in navigator && !import.meta.env.DEV) {
