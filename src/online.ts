@@ -141,15 +141,25 @@ export async function renderLeaderboard(): Promise<void> {
       el.innerHTML = '<p class="leaderboard-note">No scores yet — be the first!</p>';
       return;
     }
-    el.innerHTML = rows
-      .map((r, i) => {
-        const level = r.difficulty[0].toUpperCase() + r.difficulty.slice(1);
-        return (
-          `<div class="best-row"><span>${i + 1}. ${escapeHtml(r.profiles?.username ?? 'anonymous')}</span>` +
-          `<span><span class="pts">${r.score} pts</span> · ${r.moves} moves · ${(r.time_ms / 1000).toFixed(1)}s · ${level}</span></div>`
-        );
-      })
-      .join('');
+    el.innerHTML = '';
+    rows.forEach((r, i) => {
+      const level = r.difficulty[0].toUpperCase() + r.difficulty.slice(1);
+      const row = document.createElement('button');
+      row.type = 'button';
+      row.className = 'lb-row';
+      row.innerHTML =
+        `<span class="lb-name">${i + 1}. ${escapeHtml(r.profiles?.username ?? 'anonymous')}</span>` +
+        `<span class="pts">${r.score} pts</span><span class="lb-chevron">▾</span>`;
+      const detail = document.createElement('div');
+      detail.className = 'lb-detail hidden';
+      detail.textContent = `${level} · ${r.moves} moves · ${(r.time_ms / 1000).toFixed(1)}s`;
+      row.addEventListener('click', () => {
+        detail.classList.toggle('hidden');
+        row.classList.toggle('open', !detail.classList.contains('hidden'));
+      });
+      el.appendChild(row);
+      el.appendChild(detail);
+    });
   } catch {
     el.innerHTML = '<p class="leaderboard-note">Leaderboard unavailable.</p>';
   }

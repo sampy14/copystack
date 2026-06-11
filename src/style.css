@@ -560,10 +560,53 @@ body {
   border-bottom: none;
 }
 
-.best-row .pts {
+.best-row .pts,
+.lb-row .pts {
   color: var(--accent);
   font-family: var(--font-display);
   font-weight: 700;
+}
+
+/* Leaderboard: compact tappable rows with an expandable detail line */
+.lb-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 2px;
+  border: none;
+  border-bottom: 1px solid var(--divider);
+  background: none;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.lb-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lb-chevron {
+  color: var(--chevron);
+  font-size: 12px;
+  transition: transform 200ms ease;
+}
+
+.lb-row.open .lb-chevron {
+  transform: rotate(180deg);
+}
+
+.lb-detail {
+  padding: 0 2px 8px 18px;
+  border-bottom: 1px solid var(--divider);
+  font-size: 13px;
+  color: var(--label);
 }
 
 .text-btn {
