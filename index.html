@@ -14,22 +14,27 @@
     <link rel="icon" href="./icons/icon-192.png" />
     <link rel="apple-touch-icon" href="./icons/icon-192.png" />
     <title>CopyStack</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&display=swap"
+    />
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
     <div id="app">
       <header class="topbar">
         <h1 class="title">CopyStack</h1>
-        <div class="topbar-actions">
-          <select id="difficulty" class="difficulty-select" aria-label="Difficulty">
-            <option value="easy">Easy</option>
-            <option value="medium">Medium</option>
-            <option value="hard">Hard</option>
-            <option value="insane">Insane</option>
-          </select>
-          <button id="best-btn" class="text-btn scores-btn" title="Best scores">★ Scores</button>
-          <button id="new-game" class="text-btn">New game</button>
-        </div>
+        <select id="difficulty" class="difficulty-select" aria-label="Difficulty">
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+          <option value="insane">Insane</option>
+        </select>
+        <button id="best-btn" class="icon-btn star-btn" title="Best scores" aria-label="Best scores">★</button>
+        <button id="theme-toggle" class="icon-btn" title="Toggle dark mode" aria-label="Toggle dark mode">☾</button>
+        <button id="new-game" class="new-btn">New</button>
       </header>
 
       <section class="stats" aria-label="Session stats">
@@ -37,17 +42,21 @@
         <div class="stat"><span class="stat-label">Moves</span><span id="stat-moves" class="stat-value">0</span></div>
         <div class="stat"><span class="stat-label">Cards</span><span id="stat-cards" class="stat-value">0</span></div>
         <div class="stat"><span class="stat-label">Best</span><span id="stat-best" class="stat-value">—</span></div>
-        <div class="stat"><span class="stat-label">Score</span><span id="stat-score" class="stat-value">0</span></div>
+        <div class="stat stat-score" id="score-cell"><span class="stat-label">Score</span><span id="stat-score" class="stat-value">0</span></div>
       </section>
 
       <section class="card-area">
+        <span class="target-label" aria-hidden="true">Target</span>
         <div class="card-flipper" id="card-flipper">
           <div class="card-face card-back">
             <span class="card-back-logo">CopyStack</span>
           </div>
           <div class="card-face card-front" id="card-front"></div>
         </div>
-        <button id="start-btn" class="start-btn">Start</button>
+        <div class="card-side">
+          <span class="card-hint">match this</span>
+          <button id="start-btn" class="start-btn">Start</button>
+        </div>
       </section>
 
       <section class="board" id="board" aria-label="Game board"></section>

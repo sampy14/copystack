@@ -216,6 +216,7 @@ function onWin(): void {
   state.phase = 'won';
   const seconds = state.elapsed;
   const points = cardScore(state.cfg.multiplier, seconds, state.moves);
+  const prevScore = state.totalScore;
   state.cardsWon += 1;
   state.totalScore += points;
   if (state.bestCardTime === null || seconds < state.bestCardTime) {
@@ -224,12 +225,37 @@ function onWin(): void {
   persistBest();
   reportScore(state.cfg.id, points, Math.round(seconds * 1000), state.moves);
   renderStats();
-
-  boardEl.classList.add('celebrate');
-  setTimeout(() => boardEl.classList.remove('celebrate'), 500);
+  celebrateWin(prevScore, state.totalScore);
 
   winDetails.textContent = `Time: ${seconds.toFixed(1)}s\nMoves: ${state.moves}\nPoints: ${points}`;
-  setTimeout(() => winOverlay.classList.remove('hidden'), 450);
+  setTimeout(() => winOverlay.classList.remove('hidden'), 750);
+}
+
+/** Win presentation: snap + staggered sheen, glow ripple, score count-up. */
+function celebrateWin(fromScore: number, toScore: number): void {
+  boardEl.classList.add('celebrate');
+  boardEl
+    .querySelectorAll<HTMLElement>('.column:not(.buffer) .block')
+    .forEach((el, i) => (el.style.animationDelay = `${i * 30}ms`));
+  setTimeout(() => boardEl.classList.remove('celebrate'), 700);
+
+  const ripple = document.createElement('div');
+  ripple.className = 'board-ripple';
+  boardEl.appendChild(ripple);
+  ripple.addEventListener('animationend', () => ripple.remove());
+
+  const scoreEl = $('stat-score');
+  const cell = $('score-cell');
+  cell.classList.remove('pulse');
+  void cell.offsetWidth;
+  cell.classList.add('pulse');
+  const t0 = performance.now();
+  const tick = (now: number) => {
+    const p = Math.min(1, (now - t0) / 600);
+    scoreEl.textContent = String(Math.round(fromScore + (toScore - fromScore) * p));
+    if (p < 1) requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
 }
 
 function persistBest(): void {
@@ -313,6 +339,28 @@ startBtn.addEventListener('click', onStart);
 winNextBtn.addEventListener('click', nextCard);
 bestBtn.addEventListener('click', showBest);
 bestCloseBtn.addEventListener('click', () => bestOverlay.classList.add('hidden'));
+
+// ---------- Theme ----------
+const THEME_KEY = 'copystack.theme';
+const themeToggle = $<HTMLButtonElement>('theme-toggle');
+
+function applyTheme(theme: 'light' | 'dark'): void {
+  document.documentElement.dataset.theme = theme;
+  themeToggle.textContent = theme === 'dark' ? '☀' : '☾';
+}
+
+const storedTheme = localStorage.getItem(THEME_KEY) as 'light' | 'dark' | null;
+applyTheme(storedTheme ?? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+
+themeToggle.addEventListener('click', () => {
+  const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  try {
+    localStorage.setItem(THEME_KEY, next);
+  } catch {
+    // ignore
+  }
+});
 
 window.addEventListener('resize', () => {
   renderBoard();
