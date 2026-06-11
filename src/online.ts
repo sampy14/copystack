@@ -9,6 +9,10 @@ import { supabase } from './lib/supabase';
 
 const BANNER_DISMISSED_KEY = 'copystack.linkBannerDismissed';
 
+// Flip to true once the Google provider is configured in the Supabase dashboard
+// (OAuth credentials + "Allow manual linking" + URL whitelist).
+const GOOGLE_LINKING_ENABLED = false;
+
 let user: User | null = null;
 let username: string | null = null;
 let bannerShownThisSession = false;
@@ -70,6 +74,7 @@ async function submitNickname(): Promise<void> {
 
 // ---------- Google link banner ----------
 function maybeShowLinkBanner(): void {
+  if (!GOOGLE_LINKING_ENABLED) return;
   if (!user || !isAnonymous(user) || bannerShownThisSession) return;
   if (localStorage.getItem(BANNER_DISMISSED_KEY)) return;
   bannerShownThisSession = true;
@@ -102,7 +107,7 @@ export function renderAccount(): void {
   const linkBtn = $('account-link-google');
   if (isAnonymous(user)) {
     status.textContent = 'Guest account — scores are tied to this device.';
-    linkBtn.classList.remove('hidden');
+    linkBtn.classList.toggle('hidden', !GOOGLE_LINKING_ENABLED);
   } else {
     status.textContent = `Signed in with Google (${googleEmail(user) ?? 'linked'})`;
     linkBtn.classList.add('hidden');

@@ -24,15 +24,25 @@ export function isAnonymous(user: User): boolean {
   return user.is_anonymous === true;
 }
 
-/** Read the profile row (created automatically by the DB trigger). */
+/**
+ * Read the profile row, normally created by the DB signup trigger.
+ * If the trigger hasn't run (row missing), create the row with a
+ * placeholder username so the app can proceed.
+ */
 export async function getProfile(userId: string): Promise<{ id: string; username: string }> {
-  const { data, error } = await client()
+  const sb = client();
+  const { data, error } = await sb
     .from('profiles')
     .select('id, username')
     .eq('id', userId)
-    .single();
+    .maybeSingle();
   if (error) throw error;
-  return data;
+  if (data) return data;
+
+  const placeholder = { id: userId, username: `player_${userId.slice(0, 8)}` };
+  const { error: insertError } = await sb.from('profiles').insert(placeholder);
+  if (insertError && (insertError as { code?: string }).code !== '23505') throw insertError;
+  return placeholder;
 }
 
 /** Save the nickname chosen by the player. RLS allows only own row. */
