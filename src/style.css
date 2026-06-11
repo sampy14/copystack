@@ -609,6 +609,25 @@ body {
   color: var(--label);
 }
 
+.lb-gap {
+  padding: 2px 2px 4px;
+  text-align: center;
+  color: var(--muted);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+}
+
+.lb-row.me {
+  background: var(--accent-soft);
+  border-radius: 10px;
+  border-bottom-color: transparent;
+  color: #3a332b;
+}
+
+.lb-row.me .lb-name {
+  font-weight: 700;
+}
+
 .text-btn {
   min-height: 44px;
   border: 1px solid var(--surface-border);

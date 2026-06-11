@@ -4,7 +4,14 @@
 import type { User } from '@supabase/supabase-js';
 import type { DifficultyId } from './game';
 import { ensureUser, getProfile, googleEmail, isAnonymous, linkGoogle, onAuth, setNickname } from './lib/auth';
-import { flushQueue, saveScore, topTen, type ScoreRow } from './lib/scores';
+import {
+  flushQueue,
+  myBestWithRank,
+  saveScore,
+  topScores,
+  type LeaderboardEntry,
+  type ScoreRow,
+} from './lib/scores';
 import { supabase } from './lib/supabase';
 
 const BANNER_DISMISSED_KEY = 'copystack.linkBannerDismissed';
@@ -134,35 +141,49 @@ export async function renderLeaderboard(): Promise<void> {
     el.innerHTML = '';
     return;
   }
-  el.innerHTML = '<p class="leaderboard-note">Loading top 10…</p>';
+  el.innerHTML = '<p class="leaderboard-note">Loading top scores…</p>';
   try {
-    const rows = await topTen();
+    const [rows, mine] = await Promise.all([
+      topScores(3),
+      user ? myBestWithRank(user.id) : Promise.resolve(null),
+    ]);
     if (rows.length === 0) {
       el.innerHTML = '<p class="leaderboard-note">No scores yet — be the first!</p>';
       return;
     }
     el.innerHTML = '';
-    rows.forEach((r, i) => {
-      const level = r.difficulty[0].toUpperCase() + r.difficulty.slice(1);
-      const row = document.createElement('button');
-      row.type = 'button';
-      row.className = 'lb-row';
-      row.innerHTML =
-        `<span class="lb-name">${i + 1}. ${escapeHtml(r.profiles?.username ?? 'anonymous')}</span>` +
-        `<span class="pts">${r.score} pts</span><span class="lb-chevron">▾</span>`;
-      const detail = document.createElement('div');
-      detail.className = 'lb-detail hidden';
-      detail.textContent = `${level} · ${r.moves} moves · ${(r.time_ms / 1000).toFixed(1)}s`;
-      row.addEventListener('click', () => {
-        detail.classList.toggle('hidden');
-        row.classList.toggle('open', !detail.classList.contains('hidden'));
-      });
-      el.appendChild(row);
-      el.appendChild(detail);
-    });
+    rows.forEach((r, i) => appendLeaderboardRow(el, r, i + 1));
+    // My best position, when outside the visible top 3.
+    if (mine && mine.rank > 3) {
+      const gap = document.createElement('div');
+      gap.className = 'lb-gap';
+      gap.textContent = '…';
+      el.appendChild(gap);
+      appendLeaderboardRow(el, mine, mine.rank);
+    }
   } catch {
     el.innerHTML = '<p class="leaderboard-note">Leaderboard unavailable.</p>';
   }
+}
+
+function appendLeaderboardRow(el: HTMLElement, r: LeaderboardEntry, rank: number): void {
+  const level = r.difficulty[0].toUpperCase() + r.difficulty.slice(1);
+  const isMe = user !== null && r.user_id === user.id;
+  const row = document.createElement('button');
+  row.type = 'button';
+  row.className = 'lb-row' + (isMe ? ' me' : '');
+  row.innerHTML =
+    `<span class="lb-name">${rank}. ${escapeHtml(r.profiles?.username ?? 'anonymous')}${isMe ? ' (you)' : ''}</span>` +
+    `<span class="pts">${r.score} pts</span><span class="lb-chevron">▾</span>`;
+  const detail = document.createElement('div');
+  detail.className = 'lb-detail hidden';
+  detail.textContent = `${level} · ${r.moves} moves · ${(r.time_ms / 1000).toFixed(1)}s`;
+  row.addEventListener('click', () => {
+    detail.classList.toggle('hidden');
+    row.classList.toggle('open', !detail.classList.contains('hidden'));
+  });
+  el.appendChild(row);
+  el.appendChild(detail);
 }
 
 function escapeHtml(s: string): string {

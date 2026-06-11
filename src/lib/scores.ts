@@ -10,11 +10,16 @@ export interface ScoreRow {
 }
 
 export interface LeaderboardEntry {
+  user_id: string;
   score: number;
   time_ms: number;
   moves: number;
   difficulty: DifficultyId;
   profiles: { username: string } | null;
+}
+
+export interface RankedEntry extends LeaderboardEntry {
+  rank: number;
 }
 
 const QUEUE_KEY = 'copystack.scoreQueue';
@@ -72,14 +77,35 @@ export async function flushQueue(): Promise<void> {
   writeQueue(remaining);
 }
 
-/** Global top 10 across all difficulties. */
-export async function topTen(): Promise<LeaderboardEntry[]> {
+/** Global top N across all difficulties. */
+export async function topScores(limit: number): Promise<LeaderboardEntry[]> {
   if (!supabase) return [];
   const { data, error } = await supabase
     .from('scores')
-    .select('score, time_ms, moves, difficulty, profiles(username)')
+    .select('user_id, score, time_ms, moves, difficulty, profiles(username)')
     .order('score', { ascending: false })
-    .limit(10);
+    .limit(limit);
   if (error) throw error;
   return (data ?? []) as unknown as LeaderboardEntry[];
+}
+
+/** The given user's best score and its global rank, or null if they have none. */
+export async function myBestWithRank(userId: string): Promise<RankedEntry | null> {
+  if (!supabase) return null;
+  const { data, error } = await supabase
+    .from('scores')
+    .select('user_id, score, time_ms, moves, difficulty, profiles(username)')
+    .eq('user_id', userId)
+    .order('score', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) return null;
+  const best = data as unknown as LeaderboardEntry;
+  const { count, error: countError } = await supabase
+    .from('scores')
+    .select('*', { count: 'exact', head: true })
+    .gt('score', best.score);
+  if (countError) throw countError;
+  return { ...best, rank: (count ?? 0) + 1 };
 }
