@@ -13,6 +13,7 @@ export interface LeaderboardEntry {
   score: number;
   time_ms: number;
   moves: number;
+  difficulty: DifficultyId;
   profiles: { username: string } | null;
 }
 
@@ -71,12 +72,12 @@ export async function flushQueue(): Promise<void> {
   writeQueue(remaining);
 }
 
-export async function topTen(difficulty: DifficultyId): Promise<LeaderboardEntry[]> {
+/** Global top 10 across all difficulties. */
+export async function topTen(): Promise<LeaderboardEntry[]> {
   if (!supabase) return [];
   const { data, error } = await supabase
     .from('scores')
-    .select('score, time_ms, moves, profiles(username)')
-    .eq('difficulty', difficulty)
+    .select('score, time_ms, moves, difficulty, profiles(username)')
     .order('score', { ascending: false })
     .limit(10);
   if (error) throw error;

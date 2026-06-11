@@ -560,6 +560,12 @@ body {
   border-bottom: none;
 }
 
+.best-row .pts {
+  color: var(--accent);
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
 .text-btn {
   min-height: 44px;
   border: 1px solid var(--surface-border);

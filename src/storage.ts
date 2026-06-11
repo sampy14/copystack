@@ -1,8 +1,15 @@
 import type { DifficultyId } from './game';
 
+export interface BestCard {
+  score: number;
+  moves: number;
+  timeMs: number;
+}
+
 export interface BestScores {
   bestTotalScore: number;
   bestCardTime: number | null; // seconds
+  bestCard?: BestCard; // best single card by points
 }
 
 export interface Settings {

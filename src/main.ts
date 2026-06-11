@@ -225,7 +225,7 @@ function onWin(): void {
   if (state.bestCardTime === null || seconds < state.bestCardTime) {
     state.bestCardTime = seconds;
   }
-  persistBest();
+  persistBest(points, Math.round(seconds * 1000), state.moves);
   reportScore(state.cfg.id, points, Math.round(seconds * 1000), state.moves);
   renderStats();
   celebrateWin(prevScore, state.totalScore);
@@ -261,8 +261,9 @@ function celebrateWin(fromScore: number, toScore: number): void {
   requestAnimationFrame(tick);
 }
 
-function persistBest(): void {
+function persistBest(points: number, timeMs: number, moves: number): void {
   const stored = loadBest(state.cfg.id);
+  const card = { score: points, moves, timeMs };
   const next = {
     bestTotalScore: Math.max(stored.bestTotalScore, state.totalScore),
     bestCardTime:
@@ -271,6 +272,7 @@ function persistBest(): void {
         : state.bestCardTime === null
           ? stored.bestCardTime
           : Math.min(stored.bestCardTime, state.bestCardTime),
+    bestCard: !stored.bestCard || points > stored.bestCard.score ? card : stored.bestCard,
   };
   saveBest(state.cfg.id, next);
 }
@@ -315,16 +317,17 @@ function showBest(): void {
   bestTable.innerHTML = '';
   const all = loadAllBest();
   (Object.keys(DIFFICULTIES) as DifficultyId[]).forEach((id) => {
-    const best = all[id];
+    const card = all[id]?.bestCard;
     const row = document.createElement('div');
     row.className = 'best-row';
-    const time = best?.bestCardTime != null ? `${best.bestCardTime.toFixed(1)}s` : '—';
-    const score = best?.bestTotalScore ? String(best.bestTotalScore) : '—';
-    row.innerHTML = `<span>${DIFFICULTIES[id].label}</span><span>${time} · ${score} pts</span>`;
+    const detail = card
+      ? `<span class="pts">${card.score} pts</span> · ${card.moves} moves · ${(card.timeMs / 1000).toFixed(1)}s`
+      : '—';
+    row.innerHTML = `<span>${DIFFICULTIES[id].label}</span><span>${detail}</span>`;
     bestTable.appendChild(row);
   });
   renderAccount();
-  void renderLeaderboard(state.cfg.id);
+  void renderLeaderboard();
   bestOverlay.classList.remove('hidden');
 }
 

@@ -128,7 +128,7 @@ export function renderAccount(): void {
   }
 }
 
-export async function renderLeaderboard(difficulty: DifficultyId): Promise<void> {
+export async function renderLeaderboard(): Promise<void> {
   const el = $('leaderboard');
   if (!supabase) {
     el.innerHTML = '';
@@ -136,17 +136,19 @@ export async function renderLeaderboard(difficulty: DifficultyId): Promise<void>
   }
   el.innerHTML = '<p class="leaderboard-note">Loading top 10…</p>';
   try {
-    const rows = await topTen(difficulty);
+    const rows = await topTen();
     if (rows.length === 0) {
       el.innerHTML = '<p class="leaderboard-note">No scores yet — be the first!</p>';
       return;
     }
     el.innerHTML = rows
-      .map(
-        (r, i) =>
+      .map((r, i) => {
+        const level = r.difficulty[0].toUpperCase() + r.difficulty.slice(1);
+        return (
           `<div class="best-row"><span>${i + 1}. ${escapeHtml(r.profiles?.username ?? 'anonymous')}</span>` +
-          `<span>${r.score} pts · ${(r.time_ms / 1000).toFixed(1)}s</span></div>`
-      )
+          `<span><span class="pts">${r.score} pts</span> · ${r.moves} moves · ${(r.time_ms / 1000).toFixed(1)}s · ${level}</span></div>`
+        );
+      })
       .join('');
   } catch {
     el.innerHTML = '<p class="leaderboard-note">Leaderboard unavailable.</p>';
