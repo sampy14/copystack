@@ -99,6 +99,23 @@
         </div>
       </div>
 
+      <button id="help-btn" class="icon-btn help-btn" title="How to play" aria-label="How to play">?</button>
+
+      <div class="overlay hidden" id="tutorial-overlay">
+        <div class="overlay-panel tutorial-panel">
+          <h2>How to play</h2>
+          <ol class="tutorial-steps">
+            <li>Press <strong>Start</strong> — the target card flips face up and the timer starts.</li>
+            <li>Rearrange the blocks so the board matches the card exactly.</li>
+            <li>Tap a column to pick up its top block, then tap another column to drop it. Tap again to deselect.</li>
+            <li>The dashed column is a <strong>buffer</strong> for temporary moves — it must be empty when you finish.</li>
+            <li>In Hard and Insane every block has a number: both color <strong>and</strong> number must match.</li>
+            <li>Be fast and plan ahead — fewer seconds and fewer moves mean more points.</li>
+          </ol>
+          <button id="tutorial-close" class="start-btn">Got it</button>
+        </div>
+      </div>
+
       <div class="link-banner hidden" id="link-banner">
         <span>Save your scores across devices — link your Google account</span>
         <button id="link-banner-btn" class="text-btn">Link</button>

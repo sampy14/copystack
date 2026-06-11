@@ -343,6 +343,10 @@ winNextBtn.addEventListener('click', nextCard);
 bestBtn.addEventListener('click', showBest);
 bestCloseBtn.addEventListener('click', () => bestOverlay.classList.add('hidden'));
 
+// ---------- Tutorial ----------
+$('help-btn').addEventListener('click', () => $('tutorial-overlay').classList.remove('hidden'));
+$('tutorial-close').addEventListener('click', () => $('tutorial-overlay').classList.add('hidden'));
+
 // ---------- Theme ----------
 const THEME_KEY = 'copystack.theme';
 const themeToggle = $<HTMLButtonElement>('theme-toggle');

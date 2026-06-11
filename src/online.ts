@@ -8,6 +8,7 @@ import { flushQueue, saveScore, topTen, type ScoreRow } from './lib/scores';
 import { supabase } from './lib/supabase';
 
 const BANNER_DISMISSED_KEY = 'copystack.linkBannerDismissed';
+const NICKNAME_ASKED_KEY = 'copystack.nicknameAsked';
 
 // Flip to true once the Google provider is configured in the Supabase dashboard
 // (OAuth credentials + "Allow manual linking" + URL whitelist).
@@ -31,8 +32,10 @@ export async function initOnline(): Promise<void> {
     username = profile.username;
     void flushQueue();
     window.addEventListener('online', () => void flushQueue());
-    // First launch: placeholder username from the DB trigger -> offer a nickname.
-    if (username.startsWith('player_')) showNicknamePrompt();
+    // First launch on this device: ask for a player name (once).
+    if (!localStorage.getItem(NICKNAME_ASKED_KEY) || username.startsWith('player_')) {
+      showNicknamePrompt();
+    }
   } catch (err) {
     console.error('Online init failed; playing local-only', err);
   }
@@ -47,8 +50,18 @@ export function reportScore(difficulty: DifficultyId, score: number, timeMs: num
 
 // ---------- Nickname prompt ----------
 function showNicknamePrompt(): void {
+  const input = $<HTMLInputElement>('nickname-input');
+  if (username && !username.startsWith('player_')) input.value = username;
   $('nickname-overlay').classList.remove('hidden');
   $('nickname-error').textContent = '';
+}
+
+function markNicknameAsked(): void {
+  try {
+    localStorage.setItem(NICKNAME_ASKED_KEY, '1');
+  } catch {
+    // ignore
+  }
 }
 
 async function submitNickname(): Promise<void> {
@@ -60,8 +73,9 @@ async function submitNickname(): Promise<void> {
     return;
   }
   try {
-    await setNickname(user.id, name);
+    if (name !== username) await setNickname(user.id, name);
     username = name;
+    markNicknameAsked();
     $('nickname-overlay').classList.add('hidden');
     renderAccount();
   } catch (err) {
@@ -148,7 +162,10 @@ function escapeHtml(s: string): string {
 // ---------- Wiring ----------
 export function wireOnlineUi(): void {
   $('nickname-save').addEventListener('click', () => void submitNickname());
-  $('nickname-skip').addEventListener('click', () => $('nickname-overlay').classList.add('hidden'));
+  $('nickname-skip').addEventListener('click', () => {
+    markNicknameAsked();
+    $('nickname-overlay').classList.add('hidden');
+  });
   $('link-banner-btn').addEventListener('click', () => void doLinkGoogle());
   $('link-banner-dismiss').addEventListener('click', () => {
     $('link-banner').classList.add('hidden');
