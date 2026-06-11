@@ -12,6 +12,7 @@ import {
   type DifficultyId,
 } from './game';
 import { loadAllBest, loadBest, loadSettings, saveBest, saveSettings } from './storage';
+import { initOnline, renderAccount, renderLeaderboard, reportScore, wireOnlineUi } from './online';
 
 type Phase = 'ready' | 'playing' | 'won';
 
@@ -221,6 +222,7 @@ function onWin(): void {
     state.bestCardTime = seconds;
   }
   persistBest();
+  reportScore(state.cfg.id, points, Math.round(seconds * 1000), state.moves);
   renderStats();
 
   boardEl.classList.add('celebrate');
@@ -292,6 +294,8 @@ function showBest(): void {
     row.innerHTML = `<span>${DIFFICULTIES[id].label}</span><span>${time} · ${score} pts</span>`;
     bestTable.appendChild(row);
   });
+  renderAccount();
+  void renderLeaderboard(state.cfg.id);
   bestOverlay.classList.remove('hidden');
 }
 
@@ -326,3 +330,5 @@ if ('serviceWorker' in navigator && !import.meta.env.DEV) {
 renderCard();
 renderBoard();
 renderStats();
+wireOnlineUi();
+void initOnline();

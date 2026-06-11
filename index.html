@@ -64,8 +64,36 @@
         <div class="overlay-panel">
           <h2>Best scores</h2>
           <div id="best-table"></div>
+          <div id="account-section" class="account-section hidden">
+            <h3>Top 10 online</h3>
+            <div id="leaderboard"></div>
+            <h3>Account</h3>
+            <p id="account-status" class="account-status"></p>
+            <div class="account-row">
+              <input id="account-username" class="nickname-input" maxlength="20" placeholder="Nickname" />
+              <button id="account-save-username" class="text-btn">Save</button>
+            </div>
+            <button id="account-link-google" class="text-btn">Link Google account</button>
+          </div>
           <button id="best-close" class="text-btn">Close</button>
         </div>
+      </div>
+
+      <div class="overlay hidden" id="nickname-overlay">
+        <div class="overlay-panel">
+          <h2>Pick a nickname</h2>
+          <p>Shown on the online leaderboard. You can change it later.</p>
+          <input id="nickname-input" class="nickname-input" maxlength="20" placeholder="3–20 characters" />
+          <p id="nickname-error" class="form-error"></p>
+          <button id="nickname-save" class="start-btn">Save</button>
+          <button id="nickname-skip" class="text-btn">Skip for now</button>
+        </div>
+      </div>
+
+      <div class="link-banner hidden" id="link-banner">
+        <span>Save your scores across devices — link your Google account</span>
+        <button id="link-banner-btn" class="text-btn">Link</button>
+        <button id="link-banner-dismiss" class="icon-btn" aria-label="Dismiss">✕</button>
       </div>
     </div>
     <script type="module" src="/src/main.ts"></script>

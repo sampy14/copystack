@@ -370,6 +370,83 @@ body {
   border-bottom: none;
 }
 
+/* ---------- Online: nickname, account, link banner ---------- */
+.nickname-input {
+  min-height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  padding: 0 10px;
+  width: 100%;
+}
+
+.form-error {
+  color: #dd1c1a;
+  font-size: 13px;
+  min-height: 1em;
+}
+
+.account-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.account-section.hidden {
+  display: none;
+}
+
+.account-section h3 {
+  margin: 8px 0 0;
+  font-size: 14px;
+}
+
+.account-status {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.account-row {
+  display: flex;
+  gap: 6px;
+}
+
+.account-row .nickname-input {
+  flex: 1;
+}
+
+.leaderboard-note {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.link-banner {
+  position: fixed;
+  left: 50%;
+  bottom: max(12px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px var(--shadow);
+  padding: 8px 12px;
+  font-size: 13px;
+  max-width: calc(100vw - 24px);
+  z-index: 15;
+}
+
+.link-banner.hidden {
+  display: none;
+}
+
 /* ---------- Larger screens (tablets) ---------- */
 @media (min-width: 700px) {
   #app {
