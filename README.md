@@ -11,7 +11,7 @@ A target card shows an arrangement of colored blocks. Rearrange the blocks on th
 3. Tap a column to pick up its top block, tap another column to drop it. Tap again to deselect.
 4. Match the card. Score per card: `round(multiplier × 10000 / (seconds + 2 × moves))`.
 
-High scores per difficulty are saved locally. The ◆ button toggles pattern symbols on blocks (color-vision accessibility).
+High scores per difficulty are saved locally. 
 
 ## Develop
 
