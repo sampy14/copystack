@@ -96,16 +96,27 @@ body {
 .difficulty-select,
 .text-btn,
 .icon-btn {
-  min-height: 44px;
+  min-height: 48px;
   min-width: 44px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 10px;
   background: var(--surface);
   color: var(--text);
-  font-size: 13px;
-  padding: 0 6px;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 0 10px;
   cursor: pointer;
   white-space: nowrap;
+}
+
+.difficulty-select {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.scores-btn {
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .icon-btn[aria-pressed='true'] {
