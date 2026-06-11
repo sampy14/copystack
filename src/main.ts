@@ -147,7 +147,6 @@ function renderCard(): void {
 function renderStats(): void {
   $('stat-time').textContent = state.elapsed.toFixed(1);
   $('stat-moves').textContent = String(state.moves);
-  $('stat-cards').textContent = String(state.cardsWon);
   $('stat-best').textContent = state.bestCardTime === null ? '—' : `${state.bestCardTime.toFixed(1)}s`;
   $('stat-score').textContent = String(state.totalScore);
 }
