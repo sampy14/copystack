@@ -9,7 +9,7 @@ A target card shows an arrangement of colored blocks. Rearrange the blocks on th
 1. Pick a difficulty (Easy / Medium / Hard / Insane). Hard and Insane add numbers: both color **and** number must match.
 2. Press **Start** — the card flips face up and the timer starts.
 3. Tap a column to pick up its top block, tap another column to drop it. Tap again to deselect.
-4. Match the card. Score per card: `round(multiplier × 10000 / (seconds + 2 × moves))`.
+4. Match the card. Score per card: `round(multiplier × 100000 / (seconds + 5 × moves))` — moves cost more than seconds, so plan before you tap.
 
 High scores per difficulty are saved locally. 
 

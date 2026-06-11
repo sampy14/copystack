@@ -64,17 +64,42 @@ export function arrangementsEqual(a: Column[], b: Column[]): boolean {
   });
 }
 
-/** Deal a target that differs from the current playable arrangement. */
+/** Number of board positions whose block differs between two arrangements. */
+export function mismatchCount(a: Column[], b: Column[]): number {
+  let count = 0;
+  a.forEach((col, i) => {
+    col.forEach((blk, j) => {
+      const other = b[i]?.[j];
+      if (!other || !blocksEqual(blk, other)) count++;
+    });
+  });
+  return count;
+}
+
+/**
+ * Deal a target that differs substantially from the current playable
+ * arrangement: at least two thirds of the positions must not match, so every
+ * round requires real work. Bounded re-roll keeps the best candidate seen.
+ */
 export function dealTarget(
   cfg: DifficultyConfig,
   current: Column[],
   rng: () => number = Math.random
 ): Column[] {
-  let target: Column[];
-  do {
-    target = dealArrangement(cfg, rng);
-  } while (arrangementsEqual(target, current));
-  return target;
+  const totalBlocks = cfg.cols * cfg.rows;
+  const minMismatch = Math.ceil((totalBlocks * 2) / 3);
+  let best: Column[] | null = null;
+  let bestMismatch = -1;
+  for (let attempt = 0; attempt < 200; attempt++) {
+    const target = dealArrangement(cfg, rng);
+    const mismatch = mismatchCount(target, current);
+    if (mismatch >= minMismatch) return target;
+    if (mismatch > bestMismatch && mismatch > 0) {
+      best = target;
+      bestMismatch = mismatch;
+    }
+  }
+  return best!;
 }
 
 export type MoveResult =
@@ -96,7 +121,11 @@ export function isWin(board: Board, target: Column[], playableCols: number): boo
   return arrangementsEqual(board.slice(0, playableCols), target);
 }
 
-/** Per-card points: round(multiplier * 10000 / (seconds + 2 * moves)). */
+/**
+ * Per-card points: round(multiplier * 100000 / (seconds + 5 * moves)).
+ * Moves are weighted heavily to reward planning over frantic tapping; the
+ * 100k scale spreads scores out so performance differences are visible.
+ */
 export function cardScore(multiplier: number, seconds: number, moves: number): number {
-  return Math.round((multiplier * 10000) / (seconds + 2 * moves));
+  return Math.round((multiplier * 100000) / (seconds + 5 * moves));
 }

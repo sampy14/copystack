@@ -5,6 +5,7 @@ import {
   dealArrangement,
   dealTarget,
   arrangementsEqual,
+  mismatchCount,
   applyMove,
   isWin,
   cardScore,
@@ -50,6 +51,30 @@ describe('dealTarget', () => {
     };
     const target = dealTarget(DIFFICULTIES.easy, current, rng);
     expect(arrangementsEqual(target, current)).toBe(false);
+  });
+
+  it('requires at least two thirds of positions to differ', () => {
+    for (const cfg of [DIFFICULTIES.easy, DIFFICULTIES.insane]) {
+      const total = cfg.cols * cfg.rows;
+      const minMismatch = Math.ceil((total * 2) / 3);
+      for (let i = 0; i < 50; i++) {
+        const current = dealArrangement(cfg);
+        const target = dealTarget(cfg, current);
+        expect(mismatchCount(target, current)).toBeGreaterThanOrEqual(minMismatch);
+      }
+    }
+  });
+});
+
+describe('mismatchCount', () => {
+  const b = (color: number) => ({ color, number: null });
+
+  it('counts differing positions', () => {
+    const a = [[b(0), b(1)], [b(2)]];
+    const same = [[b(0), b(1)], [b(2)]];
+    const oneOff = [[b(0), b(2)], [b(2)]];
+    expect(mismatchCount(a, same)).toBe(0);
+    expect(mismatchCount(a, oneOff)).toBe(1);
   });
 });
 
@@ -106,12 +131,17 @@ describe('isWin', () => {
 });
 
 describe('cardScore', () => {
-  it('matches the spec formula', () => {
-    // round(1 * 10000 / (10 + 2*5)) = round(500) = 500
-    expect(cardScore(1, 10, 5)).toBe(500);
-    // round(1.5 * 10000 / (7.3 + 2*4)) = round(15000 / 15.3) = round(980.39...) = 980
-    expect(cardScore(1.5, 7.3, 4)).toBe(980);
-    // round(3 * 10000 / (20 + 2*12)) = round(30000/44) = 682
-    expect(cardScore(3, 20, 12)).toBe(682);
+  it('matches the formula round(mult * 100000 / (s + 5m))', () => {
+    // round(1 * 100000 / (10 + 5*5)) = round(2857.14...) = 2857
+    expect(cardScore(1, 10, 5)).toBe(2857);
+    // round(1.5 * 100000 / (7.3 + 5*4)) = round(150000 / 27.3) = 5495
+    expect(cardScore(1.5, 7.3, 4)).toBe(5495);
+    // round(3 * 100000 / (20 + 5*12)) = round(300000 / 80) = 3750
+    expect(cardScore(3, 20, 12)).toBe(3750);
+  });
+
+  it('weights moves more heavily than seconds', () => {
+    // One extra move costs more than one extra second.
+    expect(cardScore(1, 10, 6)).toBeLessThan(cardScore(1, 11, 5));
   });
 });
