@@ -88,12 +88,15 @@ function renderBoard(): void {
     120,
     Math.floor((boardEl.clientWidth - (numCols - 1) * 6) / numCols)
   );
-  const blockH = Math.max(36, Math.min(heightBased, colWidth - 16, 104));
+  const blockH = Math.max(36, Math.min(heightBased, colWidth - 20, 104));
   board.forEach((col, i) => {
     const colEl = document.createElement('div');
     const isBuffer = i === board.length - 1;
     colEl.className = 'column' + (isBuffer ? ' buffer' : '');
-    colEl.style.setProperty('--block-h', `${blockH}px`);
+    // Column width = block size + padding/border, so blocks render square
+    // (the buffer's 2px dashed border needs 2px more than the 1px solid one).
+    colEl.style.flex = '0 0 auto';
+    colEl.style.width = `${blockH + (isBuffer ? 22 : 20)}px`;
     if (selected === i) colEl.classList.add('selected');
     // Render exactly R slots so capacity is visible; fill from the bottom.
     for (let j = 0; j < cfg.rows; j++) {
