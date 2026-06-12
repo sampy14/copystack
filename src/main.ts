@@ -147,7 +147,8 @@ function renderCard(): void {
 function renderStats(): void {
   $('stat-time').textContent = state.elapsed.toFixed(1);
   $('stat-moves').textContent = String(state.moves);
-  $('stat-score').textContent = String(state.totalScore);
+  const bestScore = loadBest(state.cfg.id).bestCard?.score;
+  $('stat-score').textContent = bestScore ? String(bestScore) : '—';
 }
 
 // ---------- Timer ----------
@@ -217,7 +218,7 @@ function onWin(): void {
   state.phase = 'won';
   const seconds = state.elapsed;
   const points = cardScore(state.cfg.multiplier, seconds, state.moves);
-  const prevScore = state.totalScore;
+  const previousBestScore = loadBest(state.cfg.id).bestCard?.score ?? 0;
   state.cardsWon += 1;
   state.totalScore += points;
   if (state.bestCardTime === null || seconds < state.bestCardTime) {
@@ -226,7 +227,7 @@ function onWin(): void {
   persistBest(points, Math.round(seconds * 1000), state.moves);
   reportScore(state.cfg.id, points, Math.round(seconds * 1000), state.moves);
   renderStats();
-  celebrateWin(prevScore, state.totalScore);
+  celebrateWin(previousBestScore, Math.max(previousBestScore, points));
 
   winDetails.textContent = `Time: ${seconds.toFixed(1)}s\nMoves: ${state.moves}\nPoints: ${points}`;
   setTimeout(() => winOverlay.classList.remove('hidden'), 750);
@@ -244,6 +245,8 @@ function celebrateWin(fromScore: number, toScore: number): void {
   ripple.className = 'board-ripple';
   boardEl.appendChild(ripple);
   ripple.addEventListener('animationend', () => ripple.remove());
+
+  if (toScore <= fromScore) return;
 
   const scoreEl = $('stat-score');
   const cell = $('score-cell');
