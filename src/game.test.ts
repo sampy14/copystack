@@ -131,17 +131,24 @@ describe('isWin', () => {
 });
 
 describe('cardScore', () => {
-  it('matches the formula round(mult * 100000 / (s + 5m))', () => {
-    // round(1 * 100000 / (10 + 5*5)) = round(2857.14...) = 2857
-    expect(cardScore(1, 10, 5)).toBe(2857);
-    // round(1.5 * 100000 / (7.3 + 5*4)) = round(150000 / 27.3) = 5495
-    expect(cardScore(1.5, 7.3, 4)).toBe(5495);
-    // round(3 * 100000 / (20 + 5*12)) = round(300000 / 80) = 3750
-    expect(cardScore(3, 20, 12)).toBe(3750);
+  it('matches the formula round(mult * 200000 / (s + 5m)^1.3)', () => {
+    expect(cardScore(1, 10, 5)).toBe(Math.round(200000 / Math.pow(35, 1.3)));
+    expect(cardScore(4, 7.3, 4)).toBe(Math.round(800000 / Math.pow(27.3, 1.3)));
+    expect(cardScore(12, 20, 12)).toBe(Math.round(2400000 / Math.pow(80, 1.3)));
   });
 
   it('weights moves more heavily than seconds', () => {
     // One extra move costs more than one extra second.
     expect(cardScore(1, 10, 6)).toBeLessThan(cardScore(1, 11, 5));
+  });
+
+  it('rewards speed superlinearly: twice as slow loses far more than half the points', () => {
+    expect(cardScore(1, 20, 10) * 2).toBeLessThan(cardScore(1, 10, 5));
+  });
+
+  it('a solid Insane run beats a fast Easy run', () => {
+    const fastEasy = cardScore(DIFFICULTIES.easy.multiplier, 8, 6);
+    const solidInsane = cardScore(DIFFICULTIES.insane.multiplier, 45, 25);
+    expect(solidInsane).toBeGreaterThan(fastEasy);
   });
 });

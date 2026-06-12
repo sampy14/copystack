@@ -22,9 +22,9 @@ export type DifficultyId = 'easy' | 'medium' | 'hard' | 'insane';
 
 export const DIFFICULTIES: Record<DifficultyId, DifficultyConfig> = {
   easy: { id: 'easy', label: 'Easy', cols: 3, rows: 3, colors: 3, numbered: false, multiplier: 1 },
-  medium: { id: 'medium', label: 'Medium', cols: 4, rows: 4, colors: 4, numbered: false, multiplier: 1.5 },
-  hard: { id: 'hard', label: 'Hard', cols: 3, rows: 3, colors: 3, numbered: true, multiplier: 2 },
-  insane: { id: 'insane', label: 'Insane', cols: 4, rows: 4, colors: 4, numbered: true, multiplier: 3 },
+  medium: { id: 'medium', label: 'Medium', cols: 4, rows: 4, colors: 4, numbered: false, multiplier: 4 },
+  hard: { id: 'hard', label: 'Hard', cols: 3, rows: 3, colors: 3, numbered: true, multiplier: 6 },
+  insane: { id: 'insane', label: 'Insane', cols: 4, rows: 4, colors: 4, numbered: true, multiplier: 12 },
 };
 
 /** Build the full block set for a difficulty. */
@@ -122,10 +122,12 @@ export function isWin(board: Board, target: Column[], playableCols: number): boo
 }
 
 /**
- * Per-card points: round(multiplier * 100000 / (seconds + 5 * moves)).
- * Moves are weighted heavily to reward planning over frantic tapping; the
- * 100k scale spreads scores out so performance differences are visible.
+ * Per-card points: round(multiplier * 200000 / (seconds + 5 * moves)^1.3).
+ * Moves are weighted heavily to reward planning over frantic tapping, and the
+ * superlinear exponent means scores collapse quickly as a run slows down —
+ * big numbers require completing a card incredibly fast. The difficulty
+ * multipliers (1/4/6/12) make harder levels worth far more than Easy.
  */
 export function cardScore(multiplier: number, seconds: number, moves: number): number {
-  return Math.round((multiplier * 100000) / (seconds + 5 * moves));
+  return Math.round((multiplier * 200000) / Math.pow(seconds + 5 * moves, 1.3));
 }
